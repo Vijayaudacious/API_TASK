@@ -1,0 +1,24 @@
+.header {
+    height: 70px;
+    width: 100vw;
+    background-color: white;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: end;
+    padding-right: 5rem;
+}
+.container {
+    margin: 4rem 0 0 3rem;
+}
+.card {
+    width: 25vw;
+    padding: 2rem;
+    margin: 2rem;
+}
+.name{
+   color: red;
+   margin-right: 55rem;
+   margin-top: 1.5rem;
+}
