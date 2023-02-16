@@ -1,4 +1,4 @@
-import { Button, Form, Input, Card } from "antd";
+import { Button, Form, Input, Card, message } from "antd";
 import styles from "./styles.module.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -9,19 +9,11 @@ const Login = () => {
   const onFinish = async (values) => {
     try {
       const { data } = await axios.post(`https://reqres.in/api/login`, values);
-      await Cookies.set("token", data.token);
-      if (
-        data.token == "QpwL5tke4Pnpja7X4" &&
-        values.email == "eve.holt@reqres.in" &&
-        values.password == "cityslicka"
-      ) {
-        navigate("/");
-        console.log("right id password");
-      } else {
-        alert("Enter Valid Password");
-      }
+      Cookies.set("token", data.token);
+      navigate("/");
+      message.success("Successfully login");
     } catch (error) {
-      alert("Enter Valid Email");
+      message.error("Please enter correct email or password");
       console.log(error);
     }
   };
@@ -32,7 +24,16 @@ const Login = () => {
   return (
     <div className={styles.container}>
       <Card
-        title={<h1 style={{ textAlign: "center", marginTop: 15 }}>LOGIN</h1>}
+        title={
+          <>
+            <img
+              src="https://assets.website-files.com/5ff66329429d880392f6cba2/61c323afb777801522775611_CRUD%20%20Preview.png"
+              alt="login logo"
+              style={{ width: "7rem" }}
+            />{" "}
+            <h7 style={{ marginRight: "7rem" }}>LOGIN FORM</h7>
+          </>
+        }
         bordered
         hoverable
         style={{ width: 500 }}
@@ -59,11 +60,14 @@ const Login = () => {
             rules={[
               {
                 required: true,
-                message: "Please input your email!",
+                message: "Email is required",
+              },
+              {
+                type: "email",
               },
             ]}
           >
-            <Input />
+            <Input placeholder="Enter your Email" />
           </Form.Item>
 
           <Form.Item
@@ -72,11 +76,21 @@ const Login = () => {
             rules={[
               {
                 required: true,
-                message: "Please input your password!",
+                message: "Password is required",
+              },
+              {
+                type: "password",
+                min: 6,
+                message: "Enter 6 digit password ",
+              },
+              {
+                type: "password",
+                max: 10,
+                message: "Enter 6 digit password ",
               },
             ]}
           >
-            <Input.Password />
+            <Input.Password placeholder="Enter your Password" />
           </Form.Item>
 
           <Form.Item
