@@ -1,36 +1,67 @@
-import axios from "axios";
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import Footerr from "../Footer/Footer";
+import Link from "antd/es/typography/Link";
 import styles from "./styles.module.css";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import axios from "axios";
 import {
-  PoweroffOutlined,
-  ExclamationCircleFilled,
-  DeleteOutlined,
   EditOutlined,
+  DeleteOutlined,
+  ExclamationCircleFilled,
+  PoweroffOutlined,
 } from "@ant-design/icons";
-import { Button, Modal, Tooltip } from "antd";
+import { Table, Tooltip, Button, Modal, message } from "antd";
 
 const { confirm } = Modal;
 const Read = () => {
   const navigate = useNavigate();
+  const [data, setData] = useState();
   const [apiData, setApiData] = useState([]);
-
+  console.log("apiData", apiData);
+  const [tableParams, setTableParams] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+    },
+  });
   function getData() {
     axios
       .get("https://63bd0c7afa38d30d85d7791e.mockapi.io/crud")
       .then((response) => {
         setApiData(response.data);
-        console.log(response.data);
       })
       .catch((err) => {
         console.log(err);
       });
   }
+
   useEffect(() => {
     getData();
-  }, []);
+  }, [JSON.stringify(tableParams)]);
+  const handleTableChange = (pagination, filters, sorter) => {
+    setTableParams({
+      pagination,
+      filters,
+      ...sorter,
+    });
+     // `dataSource` is useless since `pageSize` changed
+    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
+      setData([]);
+    }
+  };
+
+  function setDataStorage(id, name, age, email) {
+    localStorage.setItem("id", id);
+    localStorage.setItem("name", name);
+    localStorage.setItem("age", age);
+    localStorage.setItem("email", email);
+  }
+
+  const logout = async () => {
+     Cookies.remove("token");
+    navigate("/login");
+  };
 
   function handleDelete(id) {
     axios
@@ -43,18 +74,93 @@ const Read = () => {
       });
   }
 
-  function setDataStorage(id, name, age, email) {
-    localStorage.setItem("id", id);
-    localStorage.setItem("name", name);
-    localStorage.setItem("age", age);
-    localStorage.setItem("email", email);
-  }
-
-  const logout = async () => {
-    await Cookies.remove("token");
-    navigate("/login");
+  const handleEdit = (item) => {
+    setDataStorage(item.id, item.e_name, item.e_age, item.e_email);
+    navigate(`/edit`);
+  };
+  const Onclick = () => {
+    navigate("/create");
   };
 
+  const columns = [
+    {
+      title: "ID No.",
+      dataIndex: "id",
+      width: "7%",
+    },
+    {
+      title: "Name",
+      dataIndex: "e_name",
+      dataSource: "e_name",
+      width: "20%",
+      render: (e_name) => {
+        return <>{e_name?.charAt(0).toUpperCase() + e_name?.slice(1)}</>;
+      },
+    },
+    {
+      title: "Age",
+      dataIndex: "e_age",
+      width: "20%",
+    },
+    {
+      title: "Email",
+      dataIndex: "e_email",
+      key: "email",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (item) => {
+        return (
+          <>
+            <>
+              <Link to="/edit">
+                <Tooltip title="Edit">
+                  <Button
+                    icon={<EditOutlined />}
+                    className={styles.editBtn}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(item);
+                    }}
+                  ></Button>
+                </Tooltip>
+              </Link>
+              <Tooltip title="Delete">
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => {
+                    confirm({
+                      title: "Do you want to remove this role?",
+                      icon: <ExclamationCircleFilled />,
+                      async onOk() {
+                        try {
+                          return await new Promise((resolve, reject) => {
+                            handleDelete(item.id);
+                            setTimeout(
+                              Math.random() > 0.5 ? resolve : reject,
+                              1000
+                            );
+                          });
+                        } catch
+                         {
+                          return await 
+                          // message.warning("Something went a worng");
+                          console.log("Something went a worng");
+                        }
+                      },
+                      onCancel() {},
+                    });
+                  }}
+                ></Button>
+              </Tooltip>
+            </>
+          </>
+        );
+      },
+    },
+  ];
   return (
     <>
       <div className={styles.header}>
@@ -63,15 +169,14 @@ const Read = () => {
           alt="Logo"
           style={{ marginRight: "38rem", width: "8rem" }}
         />
-        <Link to="/create">
-          <Button
-            type="primary"
-            style={{ margin: "1rem", left: "17rem" }}
-            ghost
-          >
-            Add Data
-          </Button>
-        </Link>
+        <Button
+          type="primary"
+          style={{ margin: "1rem", left: "17rem" }}
+          ghost
+          onClick={Onclick}
+        >
+          Add Data
+        </Button>
         <Button
           danger
           icon={<PoweroffOutlined />}
@@ -81,85 +186,21 @@ const Read = () => {
           Logout
         </Button>
       </div>
-      <div className="row mt-5">
-        <div className="col-md-2 col-sm-1"></div>
-        <div className="col-md-8 col-sm-10 mt-5">
-          <table className="table table-bordered table-striped table-light table-hover">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Age</th>
-                <th>Email</th>
-                <th>Action</th>
-                {/* <th>Delete</th> */}
-              </tr>
-            </thead>
-            <tbody>
-              {apiData.map((item) => {
-                return (
-                  <tr>
-                    <td>{item.id}</td>
-                    <td>
-                      {item.e_name.charAt(0).toUpperCase() +
-                        item.e_name.slice(1)}
-                    </td>
-                    <td>{item.e_age}</td>
-                    <td>{item.e_email}</td>
-                    <td>
-                      <Link to="/edit">
-                        <Tooltip title="Edit">
-                          <Button
-                            icon={<EditOutlined />}
-                            className={styles.editBtn}
-                            onClick={() =>
-                              setDataStorage(
-                                item.id,
-                                item.e_name,
-                                item.e_age,
-                                item.e_email
-                              )
-                            }
-                          ></Button>
-                        </Tooltip>
-                      </Link>
-
-                      <Tooltip title="Delete">
-                        <Button
-                          danger
-                          icon={
-                            <DeleteOutlined />
-                          }
-                          // className="btn"
-                          onClick={() => {
-                            confirm({
-                              title: "Are You Sure To Delete Data ??",
-                              icon: <ExclamationCircleFilled />,
-                              onOk() {
-                                return new Promise((resolve, reject) => {
-                                  handleDelete(item.id);
-                                  setTimeout(
-                                    Math.random() > 0.5 ? resolve : reject,
-                                    1000
-                                  );
-                                }).catch(() => console.log("Oops errors!"));
-                              },
-                              onCancel() {},
-                            });
-                          }}
-                        ></Button>
-                      </Tooltip>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <div className="col-md-2 col-sm-1"></div>
+      <div
+        style={{ marginTop: "7rem", marginRight: "6rem", marginLeft: "6rem" }}
+      >
+        <Table
+        style={{marginBottom: "96px"}}
+          columns={columns}
+          dataSource={apiData}
+          pagination={tableParams.pagination}
+          onChange={handleTableChange}
+        />
+      </div>
+      <div className={styles.footerr}>
+        <Footerr />
       </div>
     </>
   );
 };
-
 export default Read;

@@ -10,11 +10,19 @@ const Login = () => {
     try {
       const { data } = await axios.post(`https://reqres.in/api/login`, values);
       Cookies.set("token", data.token);
-      navigate("/");
-      message.success("Successfully login");
+      if (
+        data.token === "QpwL5tke4Pnpja7X4" &&
+        values.email === "eve.holt@reqres.in" &&
+        values.password === "cityslicka"
+      ) {
+        navigate("/");
+        message.success("Successfuly login");
+        console.log("right id password");
+      } else {
+        message.error("Please enter correct email or password");
+      }
     } catch (error) {
       message.error("Please enter correct email or password");
-      console.log(error);
     }
   };
   const onFinishFailed = (errorInfo) => {
@@ -36,7 +44,7 @@ const Login = () => {
         }
         bordered
         hoverable
-        style={{ width: 500 }}
+        style={{ width: 370 }}
       >
         <Form
           name="basic"
@@ -64,6 +72,7 @@ const Login = () => {
               },
               {
                 type: "email",
+                message: "Email is not valid"
               },
             ]}
           >
@@ -78,16 +87,8 @@ const Login = () => {
                 required: true,
                 message: "Password is required",
               },
-              {
-                type: "password",
-                min: 6,
-                message: "Enter 6 digit password ",
-              },
-              {
-                type: "password",
-                max: 10,
-                message: "Enter 6 digit password ",
-              },
+              { min: 8, message: "Required min 8 character" },
+              { max: 10, message: "Required max 10 character" },
             ]}
           >
             <Input.Password placeholder="Enter your Password" />
@@ -103,9 +104,9 @@ const Login = () => {
               type="primary"
               htmlType="submit"
               style={{
-                width: 150,
+                width: 110,
                 marginTop: 10,
-                marginLeft: 40,
+                marginLeft: 20,
               }}
             >
               Login

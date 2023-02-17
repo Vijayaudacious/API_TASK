@@ -2,8 +2,17 @@ import axios from "axios";
 import styles from "./styles.module.css";
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { message } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
+import { message, Form, Input, Button, Card } from "antd";
 
+const layout = {
+  labelCol: {
+    span: 6,
+  },
+  wrapperCol: {
+    span: 18,
+  },
+};
 const Create = () => {
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
@@ -20,7 +29,7 @@ const Create = () => {
       })
       .then(() => {
         navigate("/");
-        message.success("successfuly add data")
+        message.success("successfuly add data");
       })
       .catch((err) => {
         console.log(err);
@@ -30,60 +39,94 @@ const Create = () => {
   return (
     <>
       <div className={styles.container}>
-        <div className="row mr-2">
-          <div className="col-md-4">
-            <div
-              className={styles.form}
-              style={{ width: "60vh", height: "65vh" }}
-            >
-              <div className="mb-2 mt-2">
+        <Card
+          title={
+            <>
+              <div>
                 <Link to="/">
-                  <button className="btn btn-primary">Data List</button>
+                  <p className="btn">
+                    <ArrowLeftOutlined /> Data List
+                  </p>
                 </Link>
               </div>
-              <div className="p4 text-center">
-                <h2>Create Data</h2>
-              </div>
-              <form onSubmit={handleSubmit} className="bg-dark">
-                <div className="form-group">
-                  <label>Enter Name: </label>
-                  <input
-                    type="text"
-                    placeholder="Enter name"
-                    className="form-control"
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Enter Age: </label>
-                  <input
-                    type="number"
-                    placeholder="Enter Age"
-                    className="form-control"
-                    onChange={(e) => setAge(e.target.value)}
-                  />
-                </div>{" "}
-                <div className="form-group">
-                  <label>Enter Email: </label>
-                  <input
-                    type="email"
-                    placeholder="Enter Email"
-                    className="form-control"
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <br />
-                <div className="d-grid">
+            </>
+          }
+          bordered
+          hoverable
+          style={{ width: 370, marginTop: 10 }}
+        >
+          <div className="p4 text-center">
+            <h3>Add Data</h3>
+            <hr />
+          </div>
+          <form 
+            {...layout}
+            name="register"
+           onSubmit={handleSubmit}
+            style={{
+              maxWidth: 600,
+            }}
+          >
+            <Form.Item
+              name={["user", "name"]}
+              label="Name"
+              rules={[
+                {
+                  required: true,
+                  message: "Name is required",
+                },
+              ]}
+            >
+              <Input onChange={(e) => setName(e.target.value)} />
+            </Form.Item>
+            <Form.Item
+              name={["user", "email"]}
+              label="Email"
+              rules={[
+                {
+                  required: true,
+                  message: "Email is required",
+                },
+              ]}
+            >
+              <Input onChange={(e) => setEmail(e.target.value)} />
+            </Form.Item>
+            <Form.Item
+              name={["age"]}
+              label="Age"
+              rules={[
+                {
+                  type: "number",
+                  min: 0,
+                  max: 99,
+                },
+                {
+                  required: true,
+                  message: "Age is required",
+                },
+              ]}
+            >
+              <Input onChange={(e) => setAge(e.target.value)} />
+            </Form.Item>
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                style={{ marginLeft: 130 }}
+                value="submit"
+              >
+                Add Data
+              </Button>
+            </Form.Item>
+            {/* <div className="d-grid">
                   <input
                     type="submit"
                     value="submit"
                     className="btn btn-primary"
                   />
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+                </div> */}
+          </form>
+        </Card>
       </div>
     </>
   );
